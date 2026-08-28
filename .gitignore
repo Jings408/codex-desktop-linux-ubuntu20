@@ -16,6 +16,7 @@ dist/
 dist-next/
 reports/upstream-linux-package/
 reports/watchbound-signed-runtime/
+upstream-download/
 linux-features/features.json
 linux-features/local/
 .idea/
