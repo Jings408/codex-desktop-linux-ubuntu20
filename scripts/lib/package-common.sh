@@ -56,6 +56,29 @@ process.stdout.write(fields.get(fieldName) ?? "");
 NODE
 }
 
+normalize_upstream_deb_depends() {
+    printf '%s\n' "$1" \
+        | tr ',' '\n' \
+        | sed -e 's/^[[:space:]]*//; s/[[:space:]]*$//' \
+        | while IFS= read -r item; do
+            [ -n "$item" ] || continue
+            case "$item" in
+                libc6*)
+                    printf 'libc6\n'
+                    ;;
+                libgdk-pixbuf-2.0-0*)
+                    printf 'libgdk-pixbuf-2.0-0 | libgdk-pixbuf2.0-0\n'
+                    ;;
+                *)
+                    printf '%s\n' "$item"
+                    ;;
+            esac
+        done \
+        | awk '!seen[$0]++' \
+        | paste -sd ',' - \
+        | sed 's/,/, /g'
+}
+
 official_payload_deb_architecture() {
     local architecture
     architecture="$(upstream_linux_control_field Architecture)"

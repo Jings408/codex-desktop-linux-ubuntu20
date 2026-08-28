@@ -98,7 +98,10 @@ main() {
         -e "s/__VERSION__/$PACKAGE_VERSION/g" \
         -e "s/__ARCH__/$arch/g" \
         "$CONTROL_TEMPLATE" > "$PKG_ROOT/DEBIAN/control"
-    replace_literal_file_token "$PKG_ROOT/DEBIAN/control" "__UPSTREAM_DEPENDENCIES__" "$upstream_depends"
+    replace_literal_file_token \
+        "$PKG_ROOT/DEBIAN/control" \
+        "__UPSTREAM_DEPENDENCIES__" \
+        "$(normalize_upstream_deb_depends "$upstream_depends")"
     if [ -n "$upstream_recommends" ]; then
         replace_literal_file_token "$PKG_ROOT/DEBIAN/control" "__UPSTREAM_RECOMMENDS__" "$upstream_recommends"
     else
@@ -113,7 +116,7 @@ main() {
         replace_literal_file_token \
             "$PKG_ROOT/DEBIAN/control" \
             "__UPDATER_DEPENDENCIES__" \
-            "curl, dpkg, gnupg, nodejs, pkexec | policykit-1, polkitd | policykit-1, "
+            "curl, dpkg, gnupg, pkexec | policykit-1, polkitd | policykit-1, "
     else
         replace_literal_file_token "$PKG_ROOT/DEBIAN/control" "__UPDATER_DEPENDENCIES__" ""
     fi
