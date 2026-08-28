@@ -80,6 +80,33 @@ test("Debian package control inherits dependency fields from upstream", () => {
   for (const field of ["Depends", "Recommends", "Suggests"]) {
     assert.match(builder, new RegExp(`upstream_linux_control_field ${field}`));
   }
+  assert.match(builder, /normalize_upstream_deb_depends "\$upstream_depends"/);
+});
+
+test("Debian dependency normalization relaxes upstream version constraints", () => {
+  assert.equal(
+    runPackageCommon([
+      "normalize_upstream_deb_depends",
+      "'libc6 (>= 2.30), libc6 (>= 2.35), libgdk-pixbuf-2.0-0 (>= 2.36.9), libgtk-3-0 (>= 3.9.10), libcups2 (>= 1.7.0)'",
+    ].join(" "), repoRoot),
+    "libc6, libgdk-pixbuf-2.0-0 | libgdk-pixbuf2.0-0, libgtk-3-0 (>= 3.9.10), libcups2 (>= 1.7.0)\n",
+  );
+  assert.equal(
+    runPackageCommon(
+      "normalize_upstream_deb_depends 'libglib2.0-bin | kde-cli-tools | gvfs-bin, libgbm1 (>= 17.1.0~rc2)'",
+      repoRoot,
+    ),
+    "libglib2.0-bin | kde-cli-tools | gvfs-bin, libgbm1 (>= 17.1.0~rc2)\n",
+  );
+});
+
+test("native package dependencies do not hard-depend on nodejs", () => {
+  const deb = fs.readFileSync(path.join(repoRoot, "scripts/build-deb.sh"), "utf8");
+  const rpm = fs.readFileSync(path.join(repoRoot, "packaging/linux/codex-desktop.spec"), "utf8");
+  const pacman = fs.readFileSync(path.join(repoRoot, "packaging/linux/PKGBUILD.template"), "utf8");
+  assert.doesNotMatch(deb, /\bnodejs\b/);
+  assert.doesNotMatch(rpm, /\bnodejs\b/);
+  assert.doesNotMatch(pacman, /\bnodejs\b/);
 });
 
 test("non-Debian package formats map the official runtime libraries", () => {
@@ -112,7 +139,7 @@ test("RPM updater selects the distro-specific GnuPG package", () => {
   const rpm = fs.readFileSync(path.join(repoRoot, "packaging/linux/codex-desktop.spec"), "utf8");
   assert.match(
     rpm,
-    /%if __PACKAGE_WITH_UPDATER__\nRequires:\s+polkit, curl, dpkg, nodejs, xdg-utils\n%if 0%\{\?suse_version\}\nRequires:\s+gpg2\n%else\nRequires:\s+gnupg2\n%endif\n%else\nRequires:\s+xdg-utils\n%endif/,
+    /%if __PACKAGE_WITH_UPDATER__\nRequires:\s+polkit, curl, dpkg, xdg-utils\n%if 0%\{\?suse_version\}\nRequires:\s+gpg2\n%else\nRequires:\s+gnupg2\n%endif\n%else\nRequires:\s+xdg-utils\n%endif/,
   );
 });
 
