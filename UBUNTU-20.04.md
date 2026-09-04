@@ -46,6 +46,27 @@ bundled `codex`/`rg`, plugins, libraries, locales, and Owl metadata are
 preserved unchanged. With no ASAR-changing feature enabled, `resources/app.asar`
 remains byte-for-byte identical to the official package.
 
+## Focal fixes retained after upstream synchronization
+
+The repository was synchronized with upstream `main` on 2026-09-04 and the
+Focal-specific changes were replayed on top of the current upstream code. The
+following distinction is intentional:
+
+* The package fix is in this repository. It normalizes the official dependency
+  metadata only in the generated native package; it does not modify the signed
+  upstream payload or `resources/app.asar`.
+* The `git add --sparse` failure is a host-toolchain issue, not an ASAR patch.
+  Git 2.25.1 on Ubuntu 20.04 does not understand `--sparse`; upgrading Git to
+  2.34 or newer prevents the failed child process and the follow-up Electron
+  `write EPIPE` crash.
+* After an old EPIPE crash, fully exit the application and its background
+  process before relaunching. A partial Electron process can otherwise retain
+  the broken state.
+
+The current upstream package pin is `26.901.20858`. Keep the Focal dependency
+normalization when syncing future upstream commits; a plain fast-forward is not
+possible because this fork also removes upstream-only CI files.
+
 ## Install on Ubuntu 20.04
 
 ### 1. Install a recent Git (>= 2.34)
@@ -64,14 +85,15 @@ git add -h 2>&1 | grep -i sparse
 ### 2. Build and install
 
 ```bash
-git clone https://github.com/<your-user>/codex-desktop-linux.git
-cd codex-desktop-linux
-make bootstrap-native
+cd ~/codex-desktop-linux
+make install-native
 ```
 
-`make bootstrap-native` installs build dependencies first, then builds
-`codex-app/`, creates the native `.deb`, and installs it. If the dependencies
-are already present, use `make install-native` instead.
+`make install-native` resolves the current official package through the signed
+stable metadata, rebuilds `codex-app/`, creates the native `.deb`, and installs
+it. If build dependencies are missing, use `make bootstrap-native` once first.
+`make install` alone only installs an already-built artifact from `dist/`; it
+does not fetch or rebuild a newer upstream package.
 
 Build dependencies: Node.js 20+, npm, Python 3, curl, `gpgv`, `dpkg-deb`, tar,
 `make`, and a C/C++ toolchain. Rust is required only for the updater and enabled
@@ -103,9 +125,15 @@ This fork tracks upstream. To pull the latest official changes and re-apply this
 fork's dependency relaxation on top of them:
 
 ```bash
-git remote add upstream https://github.com/ilysenko/codex-desktop-linux.git
-git fetch upstream
+git fetch upstream main
 git rebase upstream/main        # or: git merge upstream/main
+make install-native
+```
+
+Create a backup branch before a future rebase if you want an easy rollback:
+
+```bash
+git branch codex/pre-upstream-sync-$(date +%Y%m%d)
 ```
 
 The dependency relaxation is confined to these files:
@@ -125,6 +153,13 @@ bash -n install.sh scripts/lib/*.sh launcher/start.sh.template
 node --test scripts/lib/package-common.test.js
 make deb
 dpkg-deb -f dist/codex-desktop_*_amd64.deb Depends
+```
+
+The Git/EPIPE prerequisite can be checked independently of the build:
+
+```bash
+git --version                         # Git 2.34 or newer
+git add -h 2>&1 | grep -- --sparse   # must print --sparse
 ```
 
 Upstream's own instructions (features, AppImage, Nix, uninstall, and
