@@ -98,6 +98,13 @@ test("Debian dependency normalization relaxes upstream version constraints", () 
     ),
     "libglib2.0-bin | kde-cli-tools | gvfs-bin, libgbm1 (>= 17.1.0~rc2)\n",
   );
+  assert.equal(
+    runPackageCommon([
+      "normalize_upstream_deb_depends",
+      "'libc6 (>= 2.30), libssl3 (>= 3.0.0), libtss2-esys-3.0.2-0 (>= 2.3.1), libtss2-mu0 (>= 3.0.1) | libtss2-mu-4.0.1-0t64 (>= 3.0.1), libtss2-tcti-device0 (>= 3.0.1), libgtk-3-0 (>= 3.9.10)'",
+    ].join(" "), repoRoot),
+    "libc6, libtss2-esys0, libgtk-3-0 (>= 3.9.10)\n",
+  );
 });
 
 test("native package dependencies do not hard-depend on nodejs", () => {
