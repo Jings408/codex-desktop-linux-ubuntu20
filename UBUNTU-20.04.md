@@ -48,14 +48,22 @@ remains byte-for-byte identical to the official package.
 
 ## Focal fixes retained after upstream synchronization
 
-The repository was synchronized with upstream `main` on 2026-09-04 and again on
-2026-09-15, and the
+The repository was synchronized with upstream `main` on 2026-09-04, again on
+2026-09-15, and again on 2026-09-23, and the
 Focal-specific changes were replayed on top of the current upstream code. The
 following distinction is intentional:
 
 * The package fix is in this repository. It normalizes the official dependency
   metadata only in the generated native package; it does not modify the signed
   upstream payload or `resources/app.asar`.
+* Official package `26.917.61114` added `libssl3`, `libtss2-esys-3.0.2-0`,
+  `libtss2-mu0 | libtss2-mu-4.0.1-0t64`, and `libtss2-tcti-device0`. Focal has
+  no `libssl3`, so that entry is removed; the three tss2 entries are mapped to
+  Focal's `libtss2-esys0`, which provides the same
+  `libtss2-{esys,mu,tcti-device}.so.0` sonames. The only payload consumer is
+  `resources/native/remote-control-device-key.node`, a lazily loaded addon that
+  also requires `libcrypto.so.3` and therefore cannot load on Focal; the rest of
+  the application is unaffected.
 * The `git add --sparse` failure is a host-toolchain issue, not an ASAR patch.
   Git 2.25.1 on Ubuntu 20.04 does not understand `--sparse`; upgrading Git to
   2.34 or newer prevents the failed child process and the follow-up Electron
@@ -64,7 +72,7 @@ following distinction is intentional:
   process before relaunching. A partial Electron process can otherwise retain
   the broken state.
 
-The current upstream package pin is `26.908.70816`. Keep the Focal dependency
+The current upstream package pin is `26.917.61114`. Keep the Focal dependency
 normalization when syncing future upstream commits; a plain fast-forward is not
 possible because this fork also removes upstream-only CI files.
 
