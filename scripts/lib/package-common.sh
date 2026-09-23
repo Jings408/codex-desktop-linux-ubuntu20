@@ -69,6 +69,16 @@ normalize_upstream_deb_depends() {
                 libgdk-pixbuf-2.0-0*)
                     printf 'libgdk-pixbuf-2.0-0 | libgdk-pixbuf2.0-0\n'
                     ;;
+                libssl3*)
+                    # Focal ships only libssl1.1. The only payload consumer is
+                    # the lazily loaded remote-control device-key addon, which
+                    # needs libcrypto.so.3 and cannot run on Focal anyway.
+                    ;;
+                libtss2-esys-3.0.2-0*|libtss2-mu0*|libtss2-mu-4.0.1-0t64*|libtss2-tcti-device0*)
+                    # Focal's single libtss2-esys0 package provides all three
+                    # sonames (libtss2-{esys,mu,tcti-device}.so.0).
+                    printf 'libtss2-esys0\n'
+                    ;;
                 *)
                     printf '%s\n' "$item"
                     ;;
