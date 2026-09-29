@@ -36,20 +36,23 @@ change.
 
 | File | Change |
 | --- | --- |
-| `scripts/lib/package-common.sh` | Adds `normalize_upstream_deb_depends()`, which relaxes `libc6 (>= ...)` to `libc6` and `libgdk-pixbuf-2.0-0 (>= ...)` to `libgdk-pixbuf-2.0-0 \| libgdk-pixbuf2.0-0`. |
+| `scripts/lib/package-common.sh` | Adds `normalize_upstream_deb_depends()`, which relaxes `libc6 (>= ...)` to `libc6`, maps `libgdk-pixbuf-2.0-0 (>= ...)` to `libgdk-pixbuf-2.0-0 \| libgdk-pixbuf2.0-0`, maps the tss2 entries to Focal's `libtss2-esys0`, and removes the unsatisfiable `libssl3`. |
 | `scripts/build-deb.sh` | Applies the normalization to the upstream `Depends` field and drops `nodejs` from the updater dependencies. |
 | `packaging/linux/codex-desktop.spec` | Drops `nodejs` from the RPM `Requires`. |
 | `packaging/linux/PKGBUILD.template` | Drops `nodejs` from the pacman `depends`. |
 
 All other upstream dependencies, the official Electron runtime, native modules,
 bundled `codex`/`rg`, plugins, libraries, locales, and Owl metadata are
-preserved unchanged. With no ASAR-changing feature enabled, `resources/app.asar`
-remains byte-for-byte identical to the official package.
+preserved unchanged. With no ASAR-changing feature enabled and no required core
+patch, `resources/app.asar` remains byte-for-byte identical to the official
+package. The current upstream revision requires the core patch
+`quit-confirmation-focus`, so the built bundle differs from the official one by
+that patch only.
 
 ## Focal fixes retained after upstream synchronization
 
 The repository was synchronized with upstream `main` on 2026-09-04, again on
-2026-09-15, and again on 2026-09-23, and the
+2026-09-15, again on 2026-09-23, and again on 2026-09-29, and the
 Focal-specific changes were replayed on top of the current upstream code. The
 following distinction is intentional:
 
@@ -72,7 +75,7 @@ following distinction is intentional:
   process before relaunching. A partial Electron process can otherwise retain
   the broken state.
 
-The current upstream package pin is `26.917.61114`. Keep the Focal dependency
+The current upstream package pin is `26.924.50649`. Keep the Focal dependency
 normalization when syncing future upstream commits; a plain fast-forward is not
 possible because this fork also removes upstream-only CI files.
 
