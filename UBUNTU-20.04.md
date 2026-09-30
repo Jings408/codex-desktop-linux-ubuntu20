@@ -52,7 +52,8 @@ that patch only.
 ## Focal fixes retained after upstream synchronization
 
 The repository was synchronized with upstream `main` on 2026-09-04, again on
-2026-09-15, again on 2026-09-23, and again on 2026-09-29, and the
+2026-09-15, again on 2026-09-23, again on 2026-09-29, and again on 2026-09-30,
+and the
 Focal-specific changes were replayed on top of the current upstream code. The
 following distinction is intentional:
 
@@ -75,7 +76,7 @@ following distinction is intentional:
   process before relaunching. A partial Electron process can otherwise retain
   the broken state.
 
-The current upstream package pin is `26.924.50649`. Keep the Focal dependency
+The current upstream package pin is `26.928.20755`. Keep the Focal dependency
 normalization when syncing future upstream commits; a plain fast-forward is not
 possible because this fork also removes upstream-only CI files.
 
