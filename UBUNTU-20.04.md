@@ -52,8 +52,8 @@ that patch only.
 ## Focal fixes retained after upstream synchronization
 
 The repository was synchronized with upstream `main` on 2026-09-04, again on
-2026-09-15, again on 2026-09-23, again on 2026-09-29, again on 2026-09-30, and
-again on 2026-10-07, and the
+2026-09-15, again on 2026-09-23, again on 2026-09-29, again on 2026-09-30,
+again on 2026-10-07, and again on 2026-10-20, and the
 Focal-specific changes were replayed on top of the current upstream code. The
 following distinction is intentional:
 
@@ -75,8 +75,11 @@ following distinction is intentional:
 * After an old EPIPE crash, fully exit the application and its background
   process before relaunching. A partial Electron process can otherwise retain
   the broken state.
+* The optional GNOME Shell global-dictation test skips its real-GJS private-bus
+  case when the system `gjs` lacks ES module support (`-m`); Ubuntu 20.04 ships
+  gjs 1.64, and the optional extension targets newer GNOME releases.
 
-The current upstream package pin is `26.1002.51308`. Keep the Focal dependency
+The current upstream package pin is `26.1013.40934`. Keep the Focal dependency
 normalization when syncing future upstream commits; a plain fast-forward is not
 possible because this fork also removes upstream-only CI files.
 

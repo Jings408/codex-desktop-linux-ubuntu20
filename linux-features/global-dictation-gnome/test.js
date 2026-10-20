@@ -134,6 +134,12 @@ test('real GJS private-bus dispatch returns uint32 version, denies async Paste a
                 return;
             }
         }
+        const moduleProbe = spawnSync(tools.gjs, ['-m', '-c', '0'], {encoding: 'utf8'});
+        if (moduleProbe.status !== 0 &&
+            /unknown option|unrecognized option|invalid option/i.test(`${moduleProbe.stderr ?? ''}${moduleProbe.stdout ?? ''}`)) {
+            t.skip('Private-bus GJS integration requires gjs with ES module support (-m); Ubuntu 20.04 ships gjs without it');
+            return;
+        }
         const root = scratch(t), runtime = path.join(root, 'runtime');
         const socket = path.join(runtime, 'bus');
         const env = {...process.env, HOME: path.join(root, 'home'), TMPDIR: path.join(root, 'tmp'),
