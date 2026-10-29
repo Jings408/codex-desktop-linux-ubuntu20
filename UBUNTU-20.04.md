@@ -53,7 +53,7 @@ that patch only.
 
 The repository was synchronized with upstream `main` on 2026-09-04, again on
 2026-09-15, again on 2026-09-23, again on 2026-09-29, again on 2026-09-30,
-again on 2026-10-07, and again on 2026-10-20, and the
+again on 2026-10-07, again on 2026-10-20, and again on 2026-10-29, and the
 Focal-specific changes were replayed on top of the current upstream code. The
 following distinction is intentional:
 
@@ -79,7 +79,7 @@ following distinction is intentional:
   case when the system `gjs` lacks ES module support (`-m`); Ubuntu 20.04 ships
   gjs 1.64, and the optional extension targets newer GNOME releases.
 
-The current upstream package pin is `26.1013.40934`. Keep the Focal dependency
+The current upstream package pin is `26.1023.51421`. Keep the Focal dependency
 normalization when syncing future upstream commits; a plain fast-forward is not
 possible because this fork also removes upstream-only CI files.
 
